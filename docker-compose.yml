@@ -1,0 +1,29 @@
+
+services:
+
+  app_vet:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      DB_URL: jdbc:mysql://localhost:3306/api
+      DB_USER_NAME: root
+      DB_PASSWORD:
+    restart: always
+    depends_on:
+      api:
+        condition: service_healthy
+
+  api:
+    image: mysql:8.0.33
+    ports:
+      - "3307:3306"  # El puerto 3307 es para acceder desde el host, pero dentro del contenedor es el puerto 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_PASSWORD:
+      MYSQL_DATABASE: api  # Cambié la base de datos a 'api' para coincidir con la configuración de Spring
+    restart: always
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 10s
+      retries: 10
